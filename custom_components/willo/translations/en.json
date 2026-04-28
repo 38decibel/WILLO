@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Willo",
+        "description": "Enter the Bluetooth address of your Willo mosquito trap.",
+        "data": {
+          "address": "Bluetooth MAC Address",
+          "name": "Display Name"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Invalid MAC address format (example: B0:B2:1C:84:61:D6)",
+      "cannot_connect": "Cannot connect to the BLE device. Make sure it is in range."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  }
+}

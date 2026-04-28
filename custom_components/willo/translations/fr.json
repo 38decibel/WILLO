@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer Willo",
+        "description": "Entrez l'adresse Bluetooth de votre borne anti-moustique Willo.",
+        "data": {
+          "address": "Adresse MAC Bluetooth",
+          "name": "Nom affiché"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Format d'adresse MAC invalide (exemple : B0:B2:1C:84:61:D6)",
+      "cannot_connect": "Impossible de se connecter au device BLE. Vérifiez qu'il est à portée."
+    },
+    "abort": {
+      "already_configured": "Ce device est déjà configuré."
+    }
+  }
+}
