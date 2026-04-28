@@ -3,7 +3,7 @@
   "name": "Willo",
   "documentation": "https://github.com/38decibel/willo",
   "issue_tracker": "https://github.com/38decibel/willo/issues",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "config_flow": true,
   "requirements": ["bleak-retry-connector==4.6.0"],
   "dependencies": ["bluetooth"],
