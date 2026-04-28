@@ -1,6 +1,6 @@
 [![willo](https://img.shields.io/github/release/38decibel/willo/all.svg?style=plastic&label=Current%20release)](https://github.com/38decibel/willo) [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=plastic)](https://github.com/hacs/integration) [![downloads](https://img.shields.io/github/downloads/38decibel/willo/total?style=plastic&label=Total%20downloads)](https://github.com/38decibel/willo)
 
-# Wiliv Willo — Home Assistant Integration
+# Willo — Home Assistant Integration
 
 Home Assistant custom integration for the **[Wiliv Willo](https://www.wiliv.com/products/willo-borne-anti-moustique)** mosquito trap.
 
@@ -33,7 +33,7 @@ The official **Wiliv mobile app** allows scheduling CO₂ diffusion hours and ma
 
 1. In HACS, go to **Integrations** → **Custom repositories**
 2. Add `https://github.com/38decibel/willo` with category **Integration**
-3. Install **Wiliv Willo**
+3. Install **Willo**
 4. Restart Home Assistant
 
 ### Manual
