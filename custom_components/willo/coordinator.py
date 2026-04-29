@@ -1,4 +1,4 @@
-"""Coordinator BLE pour WILLO."""
+"""Coordinator BLE for WILLO."""
 from __future__ import annotations
 
 import asyncio
@@ -9,6 +9,7 @@ from bleak import BleakClient
 from bleak.exc import BleakError
 from bleak_retry_connector import establish_connection
 
+from homeassistant.components.bluetooth import async_ble_device_from_address
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -26,22 +27,29 @@ COMMAND_TIMEOUT = 3.0
 
 
 class WILLOCoordinator(DataUpdateCoordinator):
-    """Coordinateur de données pour WILLO via BLE."""
+    """Data coordinator for WILLO via BLE."""
 
     def __init__(self, hass: HomeAssistant, address: str) -> None:
         super().__init__(hass, _LOGGER, name="WILLO", update_interval=POLL_INTERVAL)
+        self.hass = hass
         self.address = address
         self._buffer = ""
         self._response_event: asyncio.Event = asyncio.Event()
         self._led_state: bool = False
 
     async def _connect(self) -> BleakClient:
-        """Établit une connexion BLE fiable via bleak-retry-connector."""
+        """Establish a reliable BLE connection via bleak-retry-connector."""
+        ble_device = async_ble_device_from_address(
+            self.hass, self.address, connectable=True
+        )
+        if ble_device is None:
+            raise UpdateFailed(
+                f"Device {self.address} not found via Bluetooth — is it in range?"
+            )
         return await establish_connection(
             BleakClient,
-            device=None,
+            device=ble_device,
             name=self.address,
-            address_or_ble_device=self.address,
         )
 
     def _notification_handler(self, sender: int, data: bytearray) -> None:
@@ -54,15 +62,19 @@ class WILLOCoordinator(DataUpdateCoordinator):
         self._buffer = ""
         return response
 
-    async def _send_command(self, client: BleakClient, cmd: str, expect_response: bool = True) -> str:
+    async def _send_command(
+        self, client: BleakClient, cmd: str, expect_response: bool = True
+    ) -> str:
         self._buffer = ""
         self._response_event.clear()
         await client.write_gatt_char(NUS_TX, cmd.encode(), response=False)
         if expect_response:
             try:
-                await asyncio.wait_for(self._response_event.wait(), timeout=COMMAND_TIMEOUT)
+                await asyncio.wait_for(
+                    self._response_event.wait(), timeout=COMMAND_TIMEOUT
+                )
             except asyncio.TimeoutError:
-                _LOGGER.debug("Pas de réponse pour la commande '%s'", cmd)
+                _LOGGER.debug("No response for command '%s'", cmd)
         return self._consume_response()
 
     @staticmethod
@@ -82,14 +94,14 @@ class WILLOCoordinator(DataUpdateCoordinator):
             await self._send_command(client, cmd, expect_response=False)
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            raise UpdateFailed(f"Erreur BLE (set_led): {err}") from err
+            raise UpdateFailed(f"BLE error (set_led): {err}") from err
         finally:
             await client.disconnect()
         self._led_state = state
 
     async def set_schedule(self, bits: str) -> None:
         if len(bits) != 24 or not all(c in "01" for c in bits):
-            raise ValueError(f"Planning invalide : '{bits}' (attendu 24 bits 0/1)")
+            raise ValueError(f"Invalid schedule: '{bits}' (expected 24 chars of 0/1)")
         cmd = f"#H!{bits}*"
         client = await self._connect()
         try:
@@ -97,7 +109,7 @@ class WILLOCoordinator(DataUpdateCoordinator):
             await self._send_command(client, cmd)
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            raise UpdateFailed(f"Erreur BLE (set_schedule): {err}") from err
+            raise UpdateFailed(f"BLE error (set_schedule): {err}") from err
         finally:
             await client.disconnect()
 
@@ -118,7 +130,7 @@ class WILLOCoordinator(DataUpdateCoordinator):
 
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            raise UpdateFailed(f"Erreur BLE : {err}") from err
+            raise UpdateFailed(f"BLE error: {err}") from err
         finally:
             await client.disconnect()
 
