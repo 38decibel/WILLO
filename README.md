@@ -47,6 +47,7 @@ The official **Wiliv mobile app** allows scheduling CO₂ diffusion hours and ma
 1. Go to **Settings → Devices & Services → Add Integration**
 2. Search for **WILLO**
 3. Enter your device MAC address (e.g. `B0:B2:1C:xx:yy:zz`) and a friendly name
+4. Optional : add the Entity ID of a HA Schedule Helper to use as the schedule source (e.g. schedule.willo_schedule). Leave blank to use the 4 time slot entities instead.
 
 
 ## BLE Protocol
