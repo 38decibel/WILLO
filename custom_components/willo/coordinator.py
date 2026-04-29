@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import date, datetime, time as dt_time, timedelta
+from datetime import time as dt_time, timedelta
 
 from bleak import BleakClient
 from bleak.exc import BleakError
@@ -11,8 +11,8 @@ from bleak_retry_connector import establish_connection
 
 from homeassistant.components.bluetooth import async_ble_device_from_address
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -181,43 +181,59 @@ class WILLOCoordinator(DataUpdateCoordinator):
             self.slot2_start = dt_time(runs[1][0], 0)
             self.slot2_end = dt_time(runs[1][1] % 24, 0)
 
-    async def bits_from_schedule_entity(self, entity_id: str) -> str:
+    def bits_from_schedule_entity(self, entity_id: str) -> str:
         """Build a 24-bit schedule string from a HA Schedule Helper entity for today.
 
-        Reads the schedule configuration from the entity's config entry options/data.
-        The expected format is a dict keyed by weekday name (e.g. 'monday') containing
-        a list of time-block dicts with 'from' and 'to' keys (HH:MM strings).
+        Reads the weekday time blocks directly from the entity's state attributes.
+        The Schedule Helper stores each day's blocks under keys like 'monday',
+        'tuesday', etc.  Each block is a dict with 'from' and 'to' keys
+        (format 'HH:MM:SS').
+
+        Returns '0' * 24 if the entity is not found or its attributes are missing.
         """
+        _WEEKDAY_KEYS = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ]
         bits = ["0"] * 24
-        today = date.today().strftime("%A").lower()
 
-        entity_reg = er.async_get(self.hass)
-        entity_entry = entity_reg.async_get(entity_id)
-
-        if entity_entry and entity_entry.config_entry_id:
-            config_entry = self.hass.config_entries.async_get_entry(
-                entity_entry.config_entry_id
+        state = self.hass.states.get(entity_id)
+        if state is None:
+            _LOGGER.warning(
+                "Schedule Helper entity '%s' not found — returning empty schedule",
+                entity_id,
             )
-            if config_entry:
-                schedule_data = config_entry.options.get(
-                    "schedule", config_entry.data.get("schedule", {})
-                )
-                day_blocks = schedule_data.get(today, [])
-                for block in day_blocks:
-                    try:
-                        start_h = int(block.get("from", "0:0").split(":")[0])
-                        end_h = int(block.get("to", "0:0").split(":")[0])
-                        # end_h == 0 means midnight (end of day) → treat as 24
-                        effective_end = end_h if end_h != 0 else 24
-                        for h in range(start_h, min(effective_end, 24)):
-                            bits[h] = "1"
-                    except (ValueError, AttributeError, KeyError):
-                        _LOGGER.warning(
-                            "Could not parse schedule block from %s: %s",
-                            entity_id,
-                            block,
-                        )
+            return "".join(bits)
 
+        today_key = _WEEKDAY_KEYS[dt_util.now().weekday()]
+        day_blocks = state.attributes.get(today_key, [])
+
+        for block in day_blocks:
+            try:
+                start_h = int(str(block.get("from", "0:0:0")).split(":")[0])
+                end_h = int(str(block.get("to", "0:0:0")).split(":")[0])
+                # end_h == 0 means midnight (end of day) — treat as 24
+                effective_end = end_h if end_h != 0 else 24
+                for h in range(start_h, min(effective_end, 24)):
+                    bits[h] = "1"
+            except (ValueError, AttributeError, KeyError):
+                _LOGGER.warning(
+                    "Could not parse schedule block from %s: %s",
+                    entity_id,
+                    block,
+                )
+
+        _LOGGER.debug(
+            "Schedule Helper '%s' today (%s) → %s",
+            entity_id,
+            today_key,
+            "".join(bits),
+        )
         return "".join(bits)
 
     async def _async_update_data(self) -> dict:
@@ -225,7 +241,7 @@ class WILLOCoordinator(DataUpdateCoordinator):
         try:
             await client.start_notify(NUS_RX, self._notification_handler)
 
-            now = datetime.now()
+            now = dt_util.now()
             await self._send_command(client, f"#D!{now.strftime('%y%m%d')}*")
             await self._send_command(client, f"#T!{now.strftime('%H%M%S')}*")
 
