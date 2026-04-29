@@ -6,12 +6,16 @@
         "description": "Entrez l'adresse Bluetooth de votre borne anti-moustique Willo.",
         "data": {
           "address": "Adresse MAC Bluetooth",
-          "name": "Nom affiché"
+          "name": "Nom affiché",
+          "schedule_entity_id": "Identifiant de l'entité Schedule Helper (optionnel)"
+        },
+        "data_description": {
+          "schedule_entity_id": "Identifiant d'une entité Schedule Helper HA à utiliser comme source de planning (ex : schedule.willo_schedule). Laisser vide pour utiliser les 4 entités de plage horaire."
         }
       }
     },
     "error": {
-      "invalid_mac": "Format d'adresse MAC invalide (exemple : B0:B2:1C:84:61:D6)",
+      "invalid_mac": "Format d'adresse MAC invalide (exemple : B0:B2:1C:xx:yy:zz)",
       "cannot_connect": "Impossible de se connecter au device BLE. Vérifiez qu'il est à portée."
     },
     "abort": {
