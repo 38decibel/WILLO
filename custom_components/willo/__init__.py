@@ -5,7 +5,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.event import async_track_state_change_event, async_track_time_change
 
 from .const import CONF_SCHEDULE_ENTITY, DOMAIN
 from .coordinator import WILLOCoordinator
@@ -29,8 +29,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if schedule_entity_id:
         coordinator.schedule_entity_id = schedule_entity_id
 
-        async def _on_schedule_change(_event) -> None:
-            bits = await coordinator.bits_from_schedule_entity(schedule_entity_id)
+        async def _apply_schedule_for_today(_event_or_time=None) -> None:
+            """Read today's schedule from the Schedule Helper and push it to the device."""
+            bits = coordinator.bits_from_schedule_entity(schedule_entity_id)
+            _LOGGER.debug(
+                "Applying Schedule Helper '%s' for today: %s",
+                schedule_entity_id,
+                bits,
+            )
             try:
                 await coordinator.set_schedule(bits)
             except Exception as err:  # noqa: BLE001
@@ -40,11 +46,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     err,
                 )
 
+        # Subscribe to every state change of the Schedule Helper
         entry.async_on_unload(
             async_track_state_change_event(
-                hass, schedule_entity_id, _on_schedule_change
+                hass, schedule_entity_id, _apply_schedule_for_today
             )
         )
+
+        # Re-apply at midnight every day so the correct weekday schedule is sent
+        entry.async_on_unload(
+            async_track_time_change(
+                hass, _apply_schedule_for_today, hour=0, minute=0, second=0
+            )
+        )
+
+        # Apply immediately so the device is in sync right after setup
+        await _apply_schedule_for_today()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
