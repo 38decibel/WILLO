@@ -4,7 +4,7 @@
 
 Home Assistant custom integration for the **[Wiliv Willo](https://www.wiliv.com/products/willo-borne-anti-moustique)** mosquito trap.
 
-> ⚠️ This integration is not affiliated with or endorsed by Wiliv / Ma Boite A Moustique.
+> ⚠️ This integration is not affiliated with or endorsed by Wiliv / INYO (ex. Ma Boite A Moustique).
 
 ## About the Willo
 
