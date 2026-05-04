@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
@@ -31,7 +33,7 @@ class WILLOConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # Appelé par HA dès qu'un appareil MBAM* est détecté à proximité
     # ------------------------------------------------------------------
     async def async_step_bluetooth(
-        self, discovery_info: BluetoothServiceInfoBleak
+        self, discovery_info: BluetoothServiceInfo
     ):
         """Appelé automatiquement par HA quand un appareil MBAM* est détecté."""
         await self.async_set_unique_id(discovery_info.address.upper())
@@ -57,7 +59,9 @@ class WILLOConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "address": self._discovered_address,
             },
             data_schema=vol.Schema({
-                vol.Optional(CONF_NAME, default=self._discovered_name or _DEFAULT_NAME): str,
+                vol.Optional(
+                    CONF_NAME, default=self._discovered_name or _DEFAULT_NAME
+                ): str,
                 vol.Optional(CONF_SCHEDULE_ENTITY, default=""): str,
             }),
         )
