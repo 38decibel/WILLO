@@ -25,7 +25,7 @@ COMMAND_TIMEOUT = 3.0
 
 
 class WilloClient:
-    """Persistent BLE client for the WILLO device."""
+    """Short-lived BLE client for the WILLO device — connects, operates, disconnects."""
 
     def __init__(self, hass: HomeAssistant, address: str) -> None:
         self.hass = hass
@@ -36,14 +36,9 @@ class WilloClient:
 
     @property
     def is_connected(self) -> bool:
-        """Return True if the BLE client is currently connected."""
         return self._client is not None and self._client.is_connected
 
     async def _connect(self) -> BleakClient:
-        """Return an active BleakClient, reusing the existing one if still connected."""
-        if self.is_connected:
-            return self._client  # type: ignore[return-value]
-
         ble_device = async_ble_device_from_address(
             self.hass, self.address, connectable=True
         )
@@ -93,7 +88,7 @@ class WilloClient:
         return None
 
     async def get_data(self) -> dict:
-        """Sync date/time, read firmware version and schedule from the device."""
+        """Connect, sync date/time, read firmware + schedule, then disconnect."""
         client = await self._connect()
         try:
             await client.start_notify(NUS_RX, self._notification_handler)
@@ -110,8 +105,9 @@ class WilloClient:
 
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            await self.disconnect()
             raise UpdateFailed(f"BLE error: {err}") from err
+        finally:
+            await self.disconnect()
 
         return {
             "firmware": firmware,
@@ -119,7 +115,7 @@ class WilloClient:
         }
 
     async def set_led(self, state: bool) -> None:
-        """Send LED on/off command to the device."""
+        """Connect, send LED command, then disconnect."""
         cmd = CMD_LED_ON if state else CMD_LED_OFF
         client = await self._connect()
         try:
@@ -127,11 +123,12 @@ class WilloClient:
             await self._send_command(client, cmd, expect_response=False)
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            await self.disconnect()
             raise UpdateFailed(f"BLE error (set_led): {err}") from err
+        finally:
+            await self.disconnect()
 
     async def set_schedule(self, bits: str) -> None:
-        """Send a 24-bit schedule string to the device."""
+        """Connect, send schedule, then disconnect."""
         if len(bits) != 24 or not all(c in "01" for c in bits):
             raise ValueError(f"Invalid schedule: '{bits}' (expected 24 chars of 0/1)")
         cmd = f"#H!{bits}*"
@@ -141,8 +138,9 @@ class WilloClient:
             await self._send_command(client, cmd)
             await client.stop_notify(NUS_RX)
         except BleakError as err:
-            await self.disconnect()
             raise UpdateFailed(f"BLE error (set_schedule): {err}") from err
+        finally:
+            await self.disconnect()
 
     async def disconnect(self) -> None:
         """Disconnect from the device cleanly."""
