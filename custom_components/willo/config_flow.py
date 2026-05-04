@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.bluetooth import (
-    BluetoothServiceInfo,
-    async_discovered_service_info,
-)
+from homeassistant.components.bluetooth import async_discovered_service_info
 from homeassistant.components.selector import (
     SelectSelector,
     SelectSelectorConfig,
@@ -14,6 +13,9 @@ from homeassistant.components.selector import (
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 
 from .const import CONF_SCHEDULE_ENTITY, DOMAIN
+
+if TYPE_CHECKING:
+    from homeassistant.components.bluetooth import BluetoothServiceInfo
 
 _MANUAL_OPTION = "__manual__"
 _MANUAL_LABEL = "Enter manually / Saisie manuelle"
