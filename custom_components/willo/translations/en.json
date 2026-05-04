@@ -3,6 +3,22 @@
     "step": {
       "user": {
         "title": "Configure Willo",
+        "description": "Scanning for nearby Willo devices…"
+      },
+      "pick_device": {
+        "title": "Configure Willo",
+        "description": "Select a detected device, or choose **Enter manually** to type the MAC address.",
+        "data": {
+          "address": "Device",
+          "name": "Display Name",
+          "schedule_entity_id": "Schedule Helper entity ID (optional)"
+        },
+        "data_description": {
+          "schedule_entity_id": "Entity ID of a HA Schedule Helper to use as the schedule source (e.g. schedule.willo_schedule). Leave blank to use the 4 time slot entities instead."
+        }
+      },
+      "manual": {
+        "title": "Configure Willo",
         "description": "Enter the Bluetooth address of your Willo mosquito trap.",
         "data": {
           "address": "Bluetooth MAC Address",
