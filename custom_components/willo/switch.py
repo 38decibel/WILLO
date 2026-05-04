@@ -30,14 +30,14 @@ class WILLOLedSwitch(CoordinatorEntity[WILLOCoordinator], SwitchEntity):
     """Switch for the WILLO device LED."""
 
     _attr_icon = "mdi:lightbulb"
-    _attr_has_entity_name = True
+    _attr_has_entity_name = False
 
     def __init__(self, coordinator: WILLOCoordinator, entry: ConfigEntry) -> None:
         """Initialise the LED switch."""
         super().__init__(coordinator)
         self._entry = entry
-        self._attr_name = "LED"
-        self._attr_unique_id = f"{entry.entry_id}_led"
+        self._attr_name = "WILLO LED"
+        self._attr_unique_id = f"{entry.entry_id}_willo_led"
 
     @property
     def is_on(self) -> bool:
