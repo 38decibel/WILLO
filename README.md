@@ -43,12 +43,27 @@ The official **Wiliv mobile app** allows scheduling CO₂ diffusion hours and ma
 
 
 ## Configuration
+### Automatic discovery (recommended)
+
+When your Willo device is powered on and within Bluetooth range, Home Assistant will detect it automatically and display a notification in **Settings → Devices & Services**:
+
+1. Click **Configure** on the discovered Willo notification
+2. Confirm the device name and (optionally) set a friendly name
+3. Optional: add the Entity ID of a HA Schedule Helper (e.g. `schedule.willo_schedule`). Leave blank to use the 4 time slot entities instead.
+
+> 💡 Automatic discovery relies on the device advertising itself as `MBAM*` over Bluetooth LE. Make sure your Willo is powered on before adding the integration.
+
+### Manual setup
+
+If automatic discovery does not trigger (e.g. device not yet in range):
 
 1. Go to **Settings → Devices & Services → Add Integration**
 2. Search for **WILLO**
-3. Enter your device MAC address (e.g. `B0:B2:1C:xx:yy:zz`) and a friendly name
-4. Optional : add the Entity ID of a HA Schedule Helper to use as the schedule source (e.g. schedule.willo_schedule). Leave blank to use the 4 time slot entities instead.
+3. If no device is detected nearby, the form will fall back to manual entry
+4. Enter your device MAC address (e.g. `B0:B2:1C:xx:yy:zz`) and a friendly name
+5. Optional: add the Entity ID of a HA Schedule Helper. Leave blank to use the 4 time slot entities instead.
 
+> 💡 If devices are detected nearby, a list of `MBAM*` devices will be proposed. You can also choose **"Enter manually"** from the list to type the MAC address directly.
 
 ## BLE Protocol
 
