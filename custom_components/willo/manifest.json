@@ -3,10 +3,20 @@
   "name": "Willo",
   "documentation": "https://github.com/38decibel/willo",
   "issue_tracker": "https://github.com/38decibel/willo/issues",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "config_flow": true,
   "requirements": ["bleak-retry-connector==4.6.0"],
   "dependencies": ["bluetooth"],
   "codeowners": ["@38decibel"],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
+  "bluetooth": [
+    {
+      "local_name": "MBAM*",
+      "connectable": true
+    },
+    {
+      "service_uuid": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+      "connectable": true
+    }
+  ]
 }
