@@ -1,7 +1,7 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
-    BluetoothServiceInfoBleak,
+    BluetoothServiceInfo,
     async_discovered_service_info,
 )
 from homeassistant.components.selector import (
