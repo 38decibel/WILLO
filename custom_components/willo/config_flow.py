@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import async_discovered_service_info
-from homeassistant.components.selector import (
+from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -26,14 +26,10 @@ class WILLOConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self) -> None:
-        self._discovered_devices: dict[str, str] = {}  # address -> display label
+        self._discovered_devices: dict[str, str] = {}
         self._discovered_address: str | None = None
         self._discovered_name: str | None = None
 
-    # ------------------------------------------------------------------
-    # Découverte automatique via manifest.json (bluetooth: local_name MBAM*)
-    # Appelé par HA dès qu'un appareil MBAM* est détecté à proximité
-    # ------------------------------------------------------------------
     async def async_step_bluetooth(
         self, discovery_info: BluetoothServiceInfo
     ):
@@ -68,9 +64,6 @@ class WILLOConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }),
         )
 
-    # ------------------------------------------------------------------
-    # Flow manuel : ajout via "Ajouter une intégration"
-    # ------------------------------------------------------------------
     async def async_step_user(self, user_input=None):
         """Point d'entrée : scan des appareils MBAM* et routage."""
         discovered = [
@@ -136,9 +129,6 @@ class WILLOConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }),
         )
 
-    # ------------------------------------------------------------------
-    # Logique commune de création de l'entrée
-    # ------------------------------------------------------------------
     async def _async_create_entry(
         self, address: str, name: str, schedule_entity: str
     ):
