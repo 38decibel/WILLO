@@ -3,6 +3,22 @@
     "step": {
       "user": {
         "title": "Configurer Willo",
+        "description": "Recherche des appareils Willo à proximité…"
+      },
+      "pick_device": {
+        "title": "Configurer Willo",
+        "description": "Sélectionnez un appareil détecté ou choisissez **Saisie manuelle** pour entrer l'adresse MAC.",
+        "data": {
+          "address": "Appareil",
+          "name": "Nom affiché",
+          "schedule_entity_id": "Identifiant de l'entité Schedule Helper (optionnel)"
+        },
+        "data_description": {
+          "schedule_entity_id": "Identifiant d'une entité Schedule Helper HA à utiliser comme source de planning (ex : schedule.willo_schedule). Laisser vide pour utiliser les 4 entités de plage horaire."
+        }
+      },
+      "manual": {
+        "title": "Configurer Willo",
         "description": "Entrez l'adresse Bluetooth de votre borne anti-moustique Willo.",
         "data": {
           "address": "Adresse MAC Bluetooth",
