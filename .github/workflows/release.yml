@@ -11,6 +11,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,10 +22,17 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
-        run: npm install semantic-release @semantic-release/git @semantic-release/changelog @semantic-release/github conventional-changelog-conventionalcommits
+        run: |
+          npm install semantic-release \
+          @semantic-release/commit-analyzer \
+          @semantic-release/release-notes-generator \
+          @semantic-release/changelog \
+          @semantic-release/github \
+          @semantic-release/git \
+          conventional-changelog-conventionalcommits
 
       - name: Run semantic-release
         env:
