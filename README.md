@@ -15,7 +15,7 @@ The official **Wiliv mobile app** allows scheduling CO₂ diffusion hours and ma
 
 ## Features
 
-- 💡 **LED switch** — turn the interior UV light on/off
+- 💡 **LED switch** — turn the interior LED light on/off
 - 🕐 **24-hour schedule** — enable/disable CO₂ diffusion for each hour of the day
 - 📡 **Firmware sensor** — display device firmware version (diagnostic)
 - 🕰️ **Auto clock sync** — device date & time are synchronized with Home Assistant on each connection
