@@ -1,0 +1,1 @@
+{"name": "willo", "version": "0.0.0", "description": "Control your \"Ma boite à moustique\" mosquito trap from Home Assistant via Bluetooth Low Energy.", "license": "MIT", "repository": {"type": "git", "url": "https://github.com/38decibel/WILLO"}, "bugs": {"url": "https://github.com/38decibel/WILLO/issues"}, "keywords": ["mosquito", "trap", "home-assistant", "bluetooth"]}
